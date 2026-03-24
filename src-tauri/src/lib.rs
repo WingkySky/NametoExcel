@@ -45,7 +45,7 @@ pub fn get_unique_names(directory: String, exclude_patterns: Vec<String>) -> Res
 #[command]
 pub fn export_to_excel(names: Vec<String>, output_path: String) -> Result<(), String> {
     let workbook = Workbook::new(&output_path).map_err(|e| format!("Failed to create workbook: {}", e))?;
-    let mut sheet = workbook.add_worksheet().map_err(|e| format!("Failed to add worksheet: {}", e))?;
+    let mut sheet = workbook.add_worksheet(None).map_err(|e| format!("Failed to add worksheet: {}", e))?;
 
     sheet.write_string(0, 0, "Names", None).map_err(|e| format!("Failed to write header: {}", e))?;
 
