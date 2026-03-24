@@ -1,0 +1,21 @@
+{
+  "app": {
+    "title": "文件名提取工具",
+    "selectDirectory": "选择源目录",
+    "noDirectorySelected": "未选择目录",
+    "excludePatterns": "排除模式",
+    "excludePatternsPlaceholder": "输入要排除的字符或模式，用逗号分隔",
+    "excludePatternsHint": "例如: 数字, 社保证明, _backup",
+    "preview": "预览",
+    "extractedNames": "提取到的名称",
+    "nameCount": "共 {count} 个名称",
+    "noNamesExtracted": "未提取到名称",
+    "export": "导出 Excel",
+    "exportSuccess": "导出成功！",
+    "exportError": "导出失败：{error}",
+    "theme": "切换主题",
+    "language": "切换语言",
+    "selectedPath": "已选路径",
+    "footer": "NameToExcel 应用程序"
+  }
+}

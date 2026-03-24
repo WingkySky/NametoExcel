@@ -1,0 +1,67 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Tauri
+/src-tauri/target
+/src-tauri/.git
+
+# Environment variables
+.env
+.env.local
+.env.production.local
+.env.development.local
+.env.test.local
+
+# Build directories
+build/
+
+# Rust
+*.rs.bk
+
+# Python
+*.pyc
+__pycache__/
+
+# IDE
+.trae/
+
+# Package lock files (optional, uncomment if you want to ignore them)
+# package-lock.json
+# Cargo.lock
+
+# Installers
+rustup-init.exe
+
+# PyInstaller files
+*.spec
+*.exe
+*.pkg
+*.toc
+*.pyz
+*.zip
+
+# Temporary files
+*.tmp
+*.temp

@@ -1,0 +1,21 @@
+{
+  "app": {
+    "title": "NameToExcel",
+    "selectDirectory": "Select Directory",
+    "noDirectorySelected": "No directory selected",
+    "excludePatterns": "Exclude Patterns",
+    "excludePatternsPlaceholder": "Enter patterns to exclude, separated by commas",
+    "excludePatternsHint": "E.g.: numbers, 社保证明, _backup",
+    "preview": "Preview",
+    "extractedNames": "Extracted Names",
+    "nameCount": "Total {count} names",
+    "noNamesExtracted": "No names extracted",
+    "export": "Export to Excel",
+    "exportSuccess": "Export successful!",
+    "exportError": "Export failed: {error}",
+    "theme": "Toggle Theme",
+    "language": "Switch Language",
+    "selectedPath": "Selected Path",
+    "footer": "NameToExcel Application"
+  }
+}
