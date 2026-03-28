@@ -46,17 +46,30 @@ fn get_unique_names(directory: String, exclude_patterns: Vec<String>) -> Result<
 
 #[command]
 fn export_to_excel(names: Vec<String>, output_path: String) -> Result<(), String> {
+    use std::path::Path;
+
+    let path = Path::new(&output_path);
+
     // 检查输出目录是否存在，如果不存在则创建
-    if let Some(parent) = std::path::Path::new(&output_path).parent() {
+    if let Some(parent) = path.parent() {
         if !parent.exists() {
             fs::create_dir_all(parent)
-                .map_err(|e| format!("Failed to create output directory: {}", e))?;
+                .map_err(|e| format!("Failed to create output directory '{}': {}", parent.display(), e))?;
         }
     }
 
-    // 创建 Excel 工作簿
-    let workbook = Workbook::new(&output_path)
-        .map_err(|e| format!("Failed to create workbook at '{}': {}", output_path, e))?;
+    // 如果文件已存在，先尝试删除它（解决文件被占用的问题）
+    if path.exists() {
+        fs::remove_file(path)
+            .map_err(|e| format!("Failed to remove existing file '{}': {}. Please close the file if it's open.", output_path, e))?;
+    }
+
+    // 创建临时文件路径
+    let temp_path = format!("{}.tmp", output_path);
+
+    // 创建 Excel 工作簿（先写入临时文件）
+    let workbook = Workbook::new(&temp_path)
+        .map_err(|e| format!("Failed to create workbook at '{}': {}", temp_path, e))?;
     let mut sheet = workbook.add_worksheet(None)
         .map_err(|e| format!("Failed to add worksheet: {}", e))?;
 
@@ -72,7 +85,12 @@ fn export_to_excel(names: Vec<String>, output_path: String) -> Result<(), String
 
     // 关闭工作簿
     workbook.close()
-        .map_err(|e| format!("Failed to close workbook: {}. Path: '{}'", e, output_path))?;
+        .map_err(|e| format!("Failed to close workbook: {}. Path: '{}'", e, temp_path))?;
+
+    // 将临时文件重命名为最终文件
+    fs::rename(&temp_path, path)
+        .map_err(|e| format!("Failed to rename temp file to '{}': {}", output_path, e))?;
+
     Ok(())
 }
 
@@ -80,6 +98,7 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
             extract_name_with_patterns,
             get_unique_names,
