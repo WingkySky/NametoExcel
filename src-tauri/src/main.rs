@@ -46,17 +46,33 @@ fn get_unique_names(directory: String, exclude_patterns: Vec<String>) -> Result<
 
 #[command]
 fn export_to_excel(names: Vec<String>, output_path: String) -> Result<(), String> {
-    let workbook = Workbook::new(&output_path).map_err(|e| format!("Failed to create workbook: {}", e))?;
-    let mut sheet = workbook.add_worksheet(None).map_err(|e| format!("Failed to add worksheet: {}", e))?;
+    // 检查输出目录是否存在，如果不存在则创建
+    if let Some(parent) = std::path::Path::new(&output_path).parent() {
+        if !parent.exists() {
+            fs::create_dir_all(parent)
+                .map_err(|e| format!("Failed to create output directory: {}", e))?;
+        }
+    }
 
-    sheet.write_string(0, 0, "Names", None).map_err(|e| format!("Failed to write header: {}", e))?;
+    // 创建 Excel 工作簿
+    let workbook = Workbook::new(&output_path)
+        .map_err(|e| format!("Failed to create workbook at '{}': {}", output_path, e))?;
+    let mut sheet = workbook.add_worksheet(None)
+        .map_err(|e| format!("Failed to add worksheet: {}", e))?;
 
+    // 写入表头
+    sheet.write_string(0, 0, "Names", None)
+        .map_err(|e| format!("Failed to write header: {}", e))?;
+
+    // 写入数据
     for (index, name) in names.iter().enumerate() {
         sheet.write_string((index + 1) as u32, 0, name, None)
             .map_err(|e| format!("Failed to write name at row {}: {}", index + 1, e))?;
     }
 
-    workbook.close().map_err(|e| format!("Failed to close workbook: {}", e))?;
+    // 关闭工作簿
+    workbook.close()
+        .map_err(|e| format!("Failed to close workbook: {}. Path: '{}'", e, output_path))?;
     Ok(())
 }
 

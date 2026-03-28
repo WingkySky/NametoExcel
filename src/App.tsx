@@ -166,6 +166,7 @@ function App() {
           </Space>
         </Card>
 
+        {/* 提取到的名称列表卡片 - 显示提取的名称数量和列表 */}
         <Card
           title={`${t('app.extractedNames')} (${t('app.nameCount', { count: extractedNames.length })})`}
           style={{ marginBottom: 24 }}
