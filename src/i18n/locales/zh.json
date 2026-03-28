@@ -13,6 +13,7 @@
     "export": "导出 Excel",
     "exportSuccess": "导出成功！",
     "exportError": "导出失败：{error}",
+    "exportToSourceDirError": "不能将文件导出到源目录中，请选择其他位置",
     "theme": "切换主题",
     "language": "切换语言",
     "selectedPath": "已选路径",

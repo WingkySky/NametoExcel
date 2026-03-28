@@ -13,6 +13,7 @@
     "export": "Export to Excel",
     "exportSuccess": "Export successful!",
     "exportError": "Export failed: {error}",
+    "exportToSourceDirError": "Cannot export to the source directory. Please choose a different location.",
     "theme": "Toggle Theme",
     "language": "Switch Language",
     "selectedPath": "Selected Path",

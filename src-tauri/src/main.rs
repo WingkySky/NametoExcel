@@ -45,10 +45,22 @@ fn get_unique_names(directory: String, exclude_patterns: Vec<String>) -> Result<
 }
 
 #[command]
-fn export_to_excel(names: Vec<String>, output_path: String) -> Result<(), String> {
+fn export_to_excel(names: Vec<String>, output_path: String, source_directory: Option<String>) -> Result<(), String> {
     use std::path::Path;
 
     let path = Path::new(&output_path);
+
+    // 检查是否将文件导出到源目录中
+    if let Some(ref src_dir) = source_directory {
+        let src_path = Path::new(src_dir);
+        if let Some(parent) = path.parent() {
+            // 检查输出目录是否是源目录或其子目录
+            if parent.starts_with(src_path) {
+                // 返回错误码，由前端进行国际化处理
+                return Err("ERROR_EXPORT_TO_SOURCE_DIR".to_string());
+            }
+        }
+    }
 
     // 检查输出目录是否存在，如果不存在则创建
     if let Some(parent) = path.parent() {

@@ -83,6 +83,10 @@ function App() {
       message.warning(t('app.noNamesExtracted'));
       return;
     }
+    if (!selectedDirectory) {
+      message.warning(t('app.noDirectorySelected'));
+      return;
+    }
     try {
       const filePath = await save({
         defaultPath: 'names.xlsx',
@@ -92,11 +96,18 @@ function App() {
         await invoke('export_to_excel', {
           names: extractedNames,
           outputPath: filePath,
+          sourceDirectory: selectedDirectory,
         });
         message.success(t('app.exportSuccess'));
       }
     } catch (error) {
-      message.error(t('app.exportError', { error: String(error) }));
+      const errorStr = String(error);
+      // 根据错误码显示对应的国际化提示
+      if (errorStr.includes('ERROR_EXPORT_TO_SOURCE_DIR')) {
+        message.error(t('app.exportToSourceDirError'));
+      } else {
+        message.error(t('app.exportError', { error: errorStr }));
+      }
     }
   };
 
