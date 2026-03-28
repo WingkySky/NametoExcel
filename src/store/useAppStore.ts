@@ -12,6 +12,11 @@ interface AppState {
   removeExcludeTag: (tag: string) => void;
   clearExcludeTags: () => void;
 
+  /* 历史记录 - 用户用过的词条 */
+  tagHistory: string[];
+  addTagToHistory: (tag: string) => void;
+  clearTagHistory: () => void;
+
   /* 是否去除文件扩展名 */
   removeExtension: boolean;
   setRemoveExtension: (remove: boolean) => void;
@@ -40,12 +45,23 @@ export const useAppStore = create<AppState>()(
       addExcludeTag: (tag) => set((state) => ({
         excludeTags: state.excludeTags.includes(tag)
           ? state.excludeTags
-          : [...state.excludeTags, tag]
+          : [...state.excludeTags, tag],
+        tagHistory: state.tagHistory.includes(tag)
+          ? state.tagHistory
+          : [...state.tagHistory, tag]
       })),
       removeExcludeTag: (tag) => set((state) => ({
         excludeTags: state.excludeTags.filter(t => t !== tag)
       })),
       clearExcludeTags: () => set({ excludeTags: [] }),
+
+      tagHistory: [],
+      addTagToHistory: (tag) => set((state) => ({
+        tagHistory: state.tagHistory.includes(tag)
+          ? state.tagHistory
+          : [...state.tagHistory, tag]
+      })),
+      clearTagHistory: () => set({ tagHistory: [] }),
 
       removeExtension: true,
       setRemoveExtension: (remove) => set({ removeExtension: remove }),
@@ -69,6 +85,7 @@ export const useAppStore = create<AppState>()(
         language: state.language,
         excludeTags: state.excludeTags,
         removeExtension: state.removeExtension,
+        tagHistory: state.tagHistory,
       }),
     }
   )

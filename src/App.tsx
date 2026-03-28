@@ -18,6 +18,8 @@ function App() {
     addExcludeTag,
     removeExcludeTag,
     clearExcludeTags,
+    tagHistory,
+    clearTagHistory,
     removeExtension,
     setRemoveExtension,
     extractedNames,
@@ -172,6 +174,8 @@ function App() {
           onAddTag={addExcludeTag}
           onRemoveTag={removeExcludeTag}
           onClearAll={clearExcludeTags}
+          tagHistory={tagHistory}
+          onClearHistory={clearTagHistory}
         />
 
         {/* 操作按钮区域 */}

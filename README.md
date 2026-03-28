@@ -14,7 +14,10 @@ A modern cross-platform desktop application that extracts names from filenames a
 
 - 📁 **Directory Selection**: Easily select the source directory containing files
 - 🔍 **Smart Name Extraction**: Extracts names from filenames with customizable exclude patterns
-- 📝 **Exclude Patterns**: Define patterns to exclude from name extraction (e.g., numbers, "社保证明", etc.)
+- 📝 **Exclude Tags**: Add tags to exclude from name extraction (e.g., "备份", "副本", "_temp", etc.)
+- 📋 **Tag History**: Automatically saves your used exclude tags for quick reuse
+- ⚡ **Quick Tags**: Common tags (backup, copy, _temp) for one-click adding
+- 📄 **File Extension Toggle**: Option to keep or remove file extensions
 - 📊 **Preview Results**: Real-time preview of extracted names with count
 - 📄 **Excel Export**: Export extracted names to .xlsx format
 - 🌙 **Dark Mode**: Toggle between light and dark themes
@@ -59,9 +62,13 @@ src-tauri/target/release/bundle/
 ### Usage
 
 1. **Select Source Directory**: Click "选择源目录" to choose the folder containing your files
-2. **Configure Exclude Patterns**: Enter patterns to exclude (comma-separated), e.g., `数字, 社保证明, _backup`
-3. **Preview Results**: View extracted names in the preview list
-4. **Export to Excel**: Click "导出 Excel" to save the extracted names to a .xlsx file
+2. **Add Exclude Tags**: 
+   - Type tags in the input field and press Enter or click "Add"
+   - Click quick tags (backup, copy, _temp) for one-click adding
+   - Use tag history to quickly reuse previous tags
+3. **Toggle File Extension**: Choose whether to keep or remove file extensions
+4. **Preview Results**: View extracted names in the preview list
+5. **Export to Excel**: Click "导出 Excel" to save the extracted names to a .xlsx file
 
 ### Project Structure
 
@@ -94,8 +101,11 @@ nametoexcel/
 ### 功能特性
 
 - 📁 **目录选择**：轻松选择包含文件的源目录
-- 🔍 **智能人名提取**：从文件名中提取人名，支持自定义排除模式
-- 📝 **排除模式**：定义要排除的模式（如数字、"社保证明"等）
+- 🔍 **智能人名提取**：从文件名中提取人名，支持自定义排除词条
+- 📝 **排除词条**：添加要从人名提取中排除的词条（如"备份"、"副本"、"_temp"等）
+- 📋 **历史记录**：自动保存你使用过的排除词条，方便快速复用
+- ⚡ **快捷词条**：常用词条（备份、副本、_temp、copy）一键添加
+- 📄 **扩展名开关**：可选择保留或去除文件扩展名
 - 📊 **结果预览**：实时预览提取的人名及数量
 - 📄 **Excel 导出**：将提取的人名导出为 .xlsx 格式
 - 🌙 **深色模式**：在浅色和深色主题之间切换
@@ -140,9 +150,13 @@ src-tauri/target/release/bundle/
 ### 使用说明
 
 1. **选择源目录**：点击"选择源目录"按钮，选择包含文件的文件夹
-2. **配置排除模式**：输入要排除的模式（逗号分隔），例如：`数字, 社保证明, _backup`
-3. **预览结果**：在预览列表中查看提取的人名
-4. **导出到 Excel**：点击"导出 Excel"按钮，将提取的人名保存为 .xlsx 文件
+2. **添加排除词条**：
+   - 在输入框中输入词条，按回车或点击"添加"按钮
+   - 点击快捷词条（备份、副本、_temp、copy）一键添加
+   - 使用历史记录快速复用之前用过的词条
+3. **扩展名开关**：选择是否保留文件扩展名
+4. **预览结果**：在预览列表中查看提取的人名
+5. **导出到 Excel**：点击"导出 Excel"按钮，将提取的人名保存为 .xlsx 文件
 
 ### 项目结构
 
