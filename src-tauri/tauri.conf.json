@@ -27,6 +27,11 @@
   "bundle": {
     "active": true,
     "icon": ["icons/icon.ico"],
-    "targets": "all"
+    "targets": "all",
+    "category": "Utility",
+    "shortDescription": "Extract names from filenames to Excel",
+    "longDescription": "A modern cross-platform desktop application that extracts names from filenames and exports them to Excel files.",
+    "copyright": "Copyright 2024",
+    "publisher": "NameToExcel"
   }
 }
