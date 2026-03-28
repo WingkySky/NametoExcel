@@ -3,7 +3,7 @@ import { Button, Layout, List, Card, Space, Typography, message, Switch, Divider
 import { SunOutlined, MoonOutlined, FolderOpenOutlined, ExportOutlined, SyncOutlined, ClearOutlined } from '@ant-design/icons';
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
-import { useAppStore, ExcludeCondition } from './store/useAppStore';
+import { useAppStore } from './store/useAppStore';
 import { ExcludePatternsPanel } from './components';
 
 const { Header, Content, Footer } = Layout;
@@ -14,8 +14,10 @@ function App() {
   const {
     selectedDirectory,
     setSelectedDirectory,
-    excludeConditions,
-    setExcludeConditions,
+    excludeTags,
+    addExcludeTag,
+    removeExcludeTag,
+    clearExcludeTags,
     removeExtension,
     setRemoveExtension,
     extractedNames,
@@ -25,16 +27,13 @@ function App() {
     setIsLoading,
   } = useAppStore();
 
-  let conditionIdCounter = 0;
-  const generateConditionId = () => `condition_${++conditionIdCounter}_${Date.now()}`;
-
-  /* 提取名称 - 将条件组转换为后端格式 */
-  const extractNames = async (directory: string, conditions: ExcludeCondition[], removeExt: boolean) => {
+  /* 提取名称 - 将标签列表发送给后端 */
+  const extractNames = async (directory: string, tags: string[], removeExt: boolean) => {
     try {
       setIsLoading(true);
       const names = await invoke<string[]>('get_unique_names', {
         directory,
-        excludeConditions: conditions,
+        excludeTags: tags,
         removeExtension: removeExt,
       });
       setExtractedNames(names);
@@ -55,7 +54,7 @@ function App() {
       });
       if (selected) {
         setSelectedDirectory(selected as string);
-        await extractNames(selected as string, excludeConditions, removeExtension);
+        await extractNames(selected as string, excludeTags, removeExtension);
       }
     } catch (error) {
       message.error(String(error));
@@ -68,52 +67,13 @@ function App() {
       message.warning(t('app.noDirectorySelected'));
       return;
     }
-    await extractNames(selectedDirectory, excludeConditions, removeExtension);
+    await extractNames(selectedDirectory, excludeTags, removeExtension);
   };
 
   /* 重置条件按钮 */
   const handleResetConditions = () => {
-    setExcludeConditions([]);
+    clearExcludeTags();
     setExtractedNames([]);
-  };
-
-  /* 添加新条件组 */
-  const handleAddCondition = () => {
-    const newCondition: ExcludeCondition = {
-      id: generateConditionId(),
-      tags: [],
-    };
-    setExcludeConditions([...excludeConditions, newCondition]);
-  };
-
-  /* 更新条件组标签 */
-  const handleUpdateCondition = (id: string, tags: string[]) => {
-    const updated = excludeConditions.map(c =>
-      c.id === id ? { ...c, tags } : c
-    );
-    setExcludeConditions(updated);
-  };
-
-  /* 删除条件组 */
-  const handleDeleteCondition = (id: string) => {
-    const filtered = excludeConditions.filter(c => c.id !== id);
-    setExcludeConditions(filtered);
-  };
-
-  /* 快捷添加标签到第一个条件组（如果没有则创建） */
-  const handleQuickAddTag = (tag: string) => {
-    if (excludeConditions.length === 0) {
-      const newCondition: ExcludeCondition = {
-        id: generateConditionId(),
-        tags: [tag],
-      };
-      setExcludeConditions([newCondition]);
-    } else {
-      const firstCondition = excludeConditions[0];
-      if (!firstCondition.tags.includes(tag)) {
-        handleUpdateCondition(firstCondition.id, [...firstCondition.tags, tag]);
-      }
-    }
   };
 
   /* 导出 Excel */
@@ -206,13 +166,12 @@ function App() {
           </Space>
         </Card>
 
-        {/* 排除模式面板 - 新UI */}
+        {/* 排除词条面板 */}
         <ExcludePatternsPanel
-          excludeConditions={excludeConditions}
-          onUpdateCondition={handleUpdateCondition}
-          onAddCondition={handleAddCondition}
-          onDeleteCondition={handleDeleteCondition}
-          onQuickAddTag={handleQuickAddTag}
+          tags={excludeTags}
+          onAddTag={addExcludeTag}
+          onRemoveTag={removeExcludeTag}
+          onClearAll={clearExcludeTags}
         />
 
         {/* 操作按钮区域 */}

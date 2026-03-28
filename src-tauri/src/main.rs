@@ -1,18 +1,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use regex::Regex;
-use serde::Deserialize;
 use std::collections::HashSet;
 use std::fs;
 use tauri::command;
 use xlsxwriter::Workbook;
-
-/* 条件组结构 - 对应前端的 ExcludeCondition 接口 */
-#[derive(Debug, Deserialize)]
-pub struct ExcludeCondition {
-    id: String,
-    tags: Vec<String>,
-}
 
 /* 将用户输入的字符串转换为正则表达式模式（转义特殊字符） */
 fn escape_regex(s: &str) -> String {
@@ -27,10 +19,10 @@ fn escape_regex(s: &str) -> String {
     result
 }
 
-/* 从文件名中提取有效名称（去除排除条件后的结果） */
-fn extract_name_with_conditions(
+/* 从文件名中提取有效名称（去除排除词条后的结果） */
+fn extract_name_with_tags(
     filename: &str,
-    conditions: &[ExcludeCondition],
+    exclude_tags: &[String],
     remove_extension: bool,
 ) -> Option<String> {
     /* 获取文件基础名（去除扩展名或完整文件名） */
@@ -49,34 +41,15 @@ fn extract_name_with_conditions(
 
     let mut result = base_name.to_string();
 
-    /* 遍历每个条件组 - 组间是 OR 关系 */
-    for condition in conditions {
-        if condition.tags.is_empty() {
+    /* 遍历每个排除词条，将其从文件名中移除 */
+    for tag in exclude_tags {
+        if tag.is_empty() {
             continue;
         }
-
-        /* 组内标签是 AND 关系 - 必须所有标签都匹配才执行移除 */
-        let mut all_tags_match = true;
-        for tag in &condition.tags {
-            let escaped = escape_regex(tag);
-            let pattern = format!("(?i){}", escaped);
-            if let Ok(re) = Regex::new(&pattern) {
-                if !re.is_match(&result) {
-                    all_tags_match = false;
-                    break;
-                }
-            }
-        }
-
-        /* 只有当组内所有标签都匹配时（AND 关系），才移除这些标签 */
-        if all_tags_match {
-            for tag in &condition.tags {
-                let escaped = escape_regex(tag);
-                let pattern = format!("(?i){}", escaped);
-                if let Ok(re) = Regex::new(&pattern) {
-                    result = re.replace_all(&result, "").to_string();
-                }
-            }
+        let escaped = escape_regex(tag);
+        let pattern = format!("(?i){}", escaped);
+        if let Ok(re) = Regex::new(&pattern) {
+            result = re.replace_all(&result, "").to_string();
         }
     }
 
@@ -88,15 +61,10 @@ fn extract_name_with_conditions(
     }
 }
 
-#[derive(Debug, Deserialize)]
-pub struct ExtractOptions {
-    remove_extension: bool,
-}
-
 #[command]
 fn get_unique_names(
     directory: String,
-    exclude_conditions: Vec<ExcludeCondition>,
+    exclude_tags: Vec<String>,
     remove_extension: Option<bool>,
 ) -> Result<Vec<String>, String> {
     let remove_ext = remove_extension.unwrap_or(true);
@@ -108,7 +76,7 @@ fn get_unique_names(
     for entry in entries.flatten() {
         if entry.file_type().map(|ft| ft.is_file()).unwrap_or(false) {
             if let Some(filename) = entry.file_name().to_str() {
-                if let Some(name) = extract_name_with_conditions(filename, &exclude_conditions, remove_ext) {
+                if let Some(name) = extract_name_with_tags(filename, &exclude_tags, remove_ext) {
                     if !name.is_empty() {
                         names.insert(name);
                     }

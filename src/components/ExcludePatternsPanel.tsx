@@ -1,8 +1,6 @@
-import React from 'react';
-import { Card, Button, Space, Typography, Divider } from 'antd';
+import React, { useState } from 'react';
+import { Card, Tag, Input, Button, Space, Typography, Divider } from 'antd';
 import { PlusOutlined, FireOutlined } from '@ant-design/icons';
-import { ConditionGroupCard } from './ConditionGroupCard';
-import { ExcludeCondition } from '../store/useAppStore';
 
 const { Text } = Typography;
 
@@ -19,96 +17,81 @@ const QUICK_TAGS = [
 ];
 
 interface ExcludePatternsPanelProps {
-  excludeConditions: ExcludeCondition[];
-  onUpdateCondition: (id: string, tags: string[]) => void;
-  onAddCondition: () => void;
-  onDeleteCondition: (id: string) => void;
-  onQuickAddTag: (tag: string) => void;
+  tags: string[];
+  onAddTag: (tag: string) => void;
+  onRemoveTag: (tag: string) => void;
+  onClearAll: () => void;
 }
 
 export const ExcludePatternsPanel: React.FC<ExcludePatternsPanelProps> = ({
-  excludeConditions,
-  onUpdateCondition,
-  onAddCondition,
-  onDeleteCondition,
-  onQuickAddTag,
+  tags,
+  onAddTag,
+  onRemoveTag,
+  onClearAll,
 }) => {
-  /* 生成条件预览文本 */
-  const getPreviewText = (): string => {
-    if (excludeConditions.length === 0) {
-      return '暂未设置排除条件';
+  const [inputValue, setInputValue] = useState('');
+
+  const handleAddTag = () => {
+    const trimmed = inputValue.trim();
+    if (trimmed && !tags.includes(trimmed)) {
+      onAddTag(trimmed);
+      setInputValue('');
     }
+  };
 
-    if (excludeConditions.length === 1) {
-      const condition = excludeConditions[0];
-      if (condition.tags.length === 0) {
-        return '暂未设置排除条件';
-      }
-      if (condition.tags.length === 1) {
-        return `排除包含"${condition.tags[0]}"的文件`;
-      }
-      return `排除同时包含 ${condition.tags.map(t => `"${t}"`).join(' 和 ')} 的文件`;
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
     }
-
-    const descriptions = excludeConditions.map((condition, index) => {
-      if (condition.tags.length === 0) return null;
-      if (condition.tags.length === 1) {
-        return `条件组${index + 1}：包含"${condition.tags[0]}"`;
-      }
-      return `条件组${index + 1}：同时包含 ${condition.tags.map(t => `"${t}"`).join(' 和 ')}`;
-    }).filter(Boolean);
-
-    return descriptions!.join('\n• ');
   };
 
   return (
-    <Card title="排除模式" style={{ marginBottom: 24 }}>
+    <Card title="排除词条" style={{ marginBottom: 24 }}>
       <Space direction="vertical" style={{ width: '100%' }} size="middle">
-        {/* 条件组卡片区域 */}
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 12,
-          alignItems: 'flex-start'
-        }}>
-          {excludeConditions.map((condition, index) => (
-            <ConditionGroupCard
-              key={condition.id}
-              condition={condition}
-              groupIndex={index}
-              onUpdate={onUpdateCondition}
-              onDelete={onDeleteCondition}
+        {/* 标签输入区域 */}
+        <div>
+          <Space.Compact style={{ width: '100%' }}>
+            <Input
+              placeholder="输入要排除的词条，按回车添加"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              style={{ flex: 1 }}
             />
-          ))}
-
-          {/* 添加组按钮 */}
-          <Button
-            type="dashed"
-            icon={<PlusOutlined />}
-            onClick={onAddCondition}
-            style={{
-              width: 280,
-              height: 120,
-              fontSize: 14,
-              borderColor: '#d9d9d9',
-              color: '#666'
-            }}
-          >
-            添加条件组
-          </Button>
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAddTag}>
+              添加
+            </Button>
+          </Space.Compact>
         </div>
 
-        {/* 组间关系说明 */}
-        {excludeConditions.length > 1 && (
-          <div style={{
-            backgroundColor: '#f6ffed',
-            border: '1px solid #b7eb8f',
-            borderRadius: 4,
-            padding: '8px 12px'
-          }}>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              组间关系：<strong style={{ color: '#52c41a' }}>OR</strong>（满足任一条件组即排除）
+        {/* 已添加的标签 */}
+        {tags.length > 0 && (
+          <div>
+            <Text type="secondary" style={{ fontSize: 12, marginBottom: 8, display: 'block' }}>
+              已添加的排除词条：
             </Text>
+            <Space wrap size={[4, 4]}>
+              {tags.map((tag) => (
+                <Tag
+                  key={tag}
+                  closable
+                  onClose={() => onRemoveTag(tag)}
+                  style={{
+                    margin: 0,
+                    padding: '4px 8px',
+                    fontSize: 14
+                  }}
+                >
+                  {tag}
+                </Tag>
+              ))}
+            </Space>
+            <div style={{ marginTop: 8 }}>
+              <Button type="link" size="small" onClick={onClearAll} danger>
+                清除全部
+              </Button>
+            </div>
           </div>
         )}
 
@@ -127,7 +110,8 @@ export const ExcludePatternsPanel: React.FC<ExcludePatternsPanelProps> = ({
               <Button
                 key={quickTag.pattern}
                 size="small"
-                onClick={() => onQuickAddTag(quickTag.pattern)}
+                onClick={() => onAddTag(quickTag.pattern)}
+                disabled={tags.includes(quickTag.pattern)}
                 style={{
                   fontSize: 12,
                   padding: '0 8px',
@@ -140,36 +124,12 @@ export const ExcludePatternsPanel: React.FC<ExcludePatternsPanelProps> = ({
           </Space>
         </div>
 
-        <Divider style={{ margin: '8px 0' }} />
-
-        {/* 预览区域 */}
-        <div style={{
-          backgroundColor: '#fafafa',
-          borderRadius: 4,
-          padding: '8px 12px',
-          border: '1px solid #e8e8e8'
-        }}>
+        {/* 提示信息 */}
+        <div style={{ backgroundColor: '#fafafa', padding: '8px 12px', borderRadius: 4 }}>
           <Text type="secondary" style={{ fontSize: 12 }}>
-            <strong>排除规则预览：</strong>
+            💡 输入的每个词条都会从文件名中移除。例如：输入"社保证明"和"2024"，
+            则"张三_社保证明_2024.pdf"会变为"张三_.pdf"
           </Text>
-          <div style={{ marginTop: 4 }}>
-            {excludeConditions.length === 0 ? (
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                {getPreviewText()}
-              </Text>
-            ) : (
-              <Text style={{ fontSize: 12, whiteSpace: 'pre-line' }}>
-                {getPreviewText()}
-              </Text>
-            )}
-          </div>
-          {excludeConditions.length > 1 && (
-            <div style={{ marginTop: 4 }}>
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                满足任一条件即排除
-              </Text>
-            </div>
-          )}
         </div>
       </Space>
     </Card>
